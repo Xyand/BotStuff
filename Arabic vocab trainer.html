@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Arabic vocab trainer</title>
+<style>
+:root{--bg:#faf9f5;--surface:#fff;--text:#1f1e1d;--text2:#5f5e5a;--border:rgba(0,0,0,.2);--ab:#E6F1FB;--at:#0C447C;--aborder:#185FA5;--okb:#EAF3DE;--okt:#27500A;--okbd:#3B6D11;--nob:#FCEBEB;--not:#791F1F;--nobd:#A32D2D;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1f1e1d;--surface:#2b2a28;--text:#f1efe8;--text2:#b4b2a9;--border:rgba(255,255,255,.25);--ab:#0C447C;--at:#B5D4F4;--aborder:#85B7EB;--okb:#27500A;--okt:#C0DD97;--okbd:#97C459;--nob:#791F1F;--not:#F7C1C1;--nobd:#F09595}}
+:root[data-theme="dark"]{--bg:#1f1e1d;--surface:#2b2a28;--text:#f1efe8;--text2:#b4b2a9;--border:rgba(255,255,255,.25);--ab:#0C447C;--at:#B5D4F4;--aborder:#85B7EB;--okb:#27500A;--okt:#C0DD97;--okbd:#97C459;--nob:#791F1F;--not:#F7C1C1;--nobd:#F09595}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+main{max-width:480px;margin:0 auto;padding:16px}
+h1{font-size:20px;font-weight:500;margin:0 0 12px}
+button{font:inherit;color:var(--text);background:transparent;border:0.5px solid var(--border);border-radius:8px;padding:10px 12px;cursor:pointer}
+button:active{transform:scale(.98)}
+.m{display:flex;gap:8px;margin:0 0 12px}.m button{flex:1}
+.m button.on{background:var(--ab);color:var(--at);border-color:var(--aborder)}
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:20px;text-align:center;min-height:170px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer}
+.ar{font-size:40px;line-height:1.4;direction:rtl}
+.he{font-size:26px;direction:rtl}
+.sub{font-size:13px;color:var(--text2)}
+.row{display:flex;gap:8px;margin-top:12px}.row button{flex:1}
+.opt{width:100%;text-align:center;font-size:20px;direction:rtl;margin-bottom:8px}
+.ok{background:var(--okb)!important;border-color:var(--okbd)!important;color:var(--okt)!important}
+.no{background:var(--nob)!important;border-color:var(--nobd)!important;color:var(--not)!important}
+</style>
+</head>
+<body>
+<main>
+<h1>Arabic vocab trainer</h1>
+<div class="m"><button id="bf" class="on" onclick="setMode('f')">Flashcards</button><button id="bq" onclick="setMode('q')">Quiz</button></div>
+<div id="app"></div>
+<p class="sub" style="margin-top:12px">Audio uses your device's Arabic voice. If you hear nothing, check that an Arabic voice is installed and your volume is up.</p>
+</main>
+<script>
+var W=[
+["أَمِير","אמיר (שם בן), נסיך"],["أَمَام","מול"],["أُمّ","אמא"],["أَمَل","אמל (שם בת), תקווה"],
+["إِبْن","בן"],["أَنَا","אני"],["أَنْتَ","אתה"],["أَنْتِ","את"],["أَنْتُمْ","אתם"],
+["إِلَى","אל..."],["إِلَى أَيْنَ","לאן?"],["أَيْنَ","איפה?"],["وَلَد","ילד"],["أَوْلاد","ילדים"],
+["الأُرْدُنّ","ירדן"],["إِيلات","אילת"],["بِنْت","בת"],["بَنات","בנות"],["تِلْمِيذ","תלמיד"],
+["تَلامِيذ","תלמידים"],["تَلّ أَبِيب","תל אביב"],["لُبْنان","לבנון"],["مِنْ","מ..."],["مُدِير","מנהל"],
+["مُمْتاز","מצוין"],["مِنْ أَيْنَ","מאיפה?"],["مَاذا","מה?"],["مَتَى","מתי?"],["يَوْم","יום"],
+["يُرِيدُ","הוא רוצה"],["يَا","יא (מילת פנייה)"],
+["أَرْز","ארז/ים"],["أَوْ","או"],["أَرَادَ","רצה"],
+["دَاوُد","דאוד (שם בן)"],["دُرُوز","דרוזים"],["دَار","דירה"],
+["دَوْر","תפקיד"],["زَار","ביקר"],["وِدَاد","וִ'דאד (שם בת)"],
+["وَرْد","ורד/ים"],["وَ","ו... (ו' החיבור)"],
+["بِ","ב..."],["أَب","אבא"],["أَبُو","אבא של..."],
+["أَدِيب","אדיב, מנומס"],["بَيْت","בית"],["بَدَوِيّ","בדואי"],
+["دُرْزِيّ","דרוזי"],["بَرِيد","דואר"],["بَاب","דלת, שער"],
+["يَد","יד"],["وَزِير","שר"],["وَرْدِيّ","ורוד"],
+["رَادِيُو","רדיו"],["رَبَاب","רבאב (שם בת)"],["زَيْد","זיד (שם בן)"],
+["سَافَرَ","נסע"],["يَافَا","יפו"],["فِي","ב / בתוך"],["سَافَرُوا","נסעו"],["دَفْتَر","מחברת"]
+];
+var mode='f',order=[],i=0,flip=false,q={n:0,score:0,cur:null,opts:[],done:false,answered:false,listen:false};
+function shuf(a){a=a.slice();for(var k=a.length-1;k>0;k--){var j=Math.floor(Math.random()*(k+1));var t=a[k];a[k]=a[j];a[j]=t}return a}
+function speak(t){
+  if(!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  var u=new SpeechSynthesisUtterance(t);u.lang='ar-SA';u.rate=0.8;
+  var v=(speechSynthesis.getVoices()||[]).filter(function(x){return x.lang&&x.lang.toLowerCase().indexOf('ar')===0})[0];
+  if(v)u.voice=v;
+  speechSynthesis.speak(u);
+}
+function say(){speak(mode==='f'?W[order[i]][0]:W[q.cur][0])}
+function setMode(m){
+  mode=m;
+  document.getElementById('bf').className=m==='f'?'on':'';
+  document.getElementById('bq').className=m==='q'?'on':'';
+  if(m==='f'){order=shuf(W.map(function(_,k){return k}));i=0;flip=false;drawF()}
+  else{q={n:0,score:0,cur:null,opts:[],done:false,answered:false,listen:q.listen};nextQ()}
+}
+function drawF(){
+  var w=W[order[i]];
+  var back=flip?'<div class="he">'+w[1]+'</div>':'<div class="sub">Tap the card to reveal</div>';
+  document.getElementById('app').innerHTML=
+  '<div class="sub" style="margin-bottom:6px">Card '+(i+1)+' of '+W.length+'</div>'+
+  '<div class="card" onclick="flip=!flip;drawF()"><div class="ar">'+w[0]+'</div>'+back+'</div>'+
+  '<div class="row"><button onclick="say()">Listen</button></div>'+
+  '<div class="row"><button onclick="go(-1)">Previous</button><button onclick="setMode(\'f\')">Shuffle</button><button onclick="go(1)">Next</button></div>';
+}
+function go(d){i=(i+d+W.length)%W.length;flip=false;drawF();setTimeout(say,50)}
+function nextQ(){
+  if(q.n>=10){q.done=true;drawQ();return}
+  var c=Math.floor(Math.random()*W.length);
+  var pool=shuf(W.map(function(_,k){return k}).filter(function(k){return k!==c&&W[k][1]!==W[c][1]})).slice(0,3);
+  q.cur=c;q.opts=shuf([c].concat(pool));q.answered=false;q.pick=null;
+  drawQ();
+}
+function toggleListen(){q.listen=!q.listen;drawQ()}
+function ans(k){
+  if(q.answered)return;
+  q.answered=true;q.pick=k;q.n++;
+  if(k===q.cur)q.score++;
+  drawQ();
+}
+function drawQ(){
+  var el=document.getElementById('app');
+  if(q.done){
+    el.innerHTML='<div class="card" style="cursor:default"><div class="sub">Round complete</div><div style="font-size:36px;font-weight:500">'+q.score+' / 10</div>'+
+    '<div class="sub">'+(q.score>=8?'Strong round.':q.score>=5?'Getting there. Run another round.':'Review the flashcards, then try again.')+'</div></div>'+
+    '<div class="row"><button onclick="setMode(\'q\')">New round</button><button onclick="setMode(\'f\')">Flashcards</button></div>';
+    return;
+  }
+  var w=W[q.cur];
+  var front=q.listen&&!q.answered?'<div class="sub">Listen, then pick the meaning</div>':'<div class="ar">'+w[0]+'</div>';
+  var h='<div class="sub" style="margin-bottom:6px">Question '+(q.n+(q.answered?0:1))+' of 10 &middot; Score '+q.score+'</div>'+
+  '<div class="card" style="cursor:default;min-height:120px">'+front+'<button onclick="say()">Listen</button></div><div style="margin-top:12px">';
+  q.opts.forEach(function(k){
+    var cls='opt';
+    if(q.answered){if(k===q.cur)cls+=' ok';else if(k===q.pick)cls+=' no'}
+    h+='<button class="'+cls+'" onclick="ans('+k+')">'+W[k][1]+'</button>';
+  });
+  h+='</div><div class="row"><button onclick="toggleListen()">'+(q.listen?'Arabic text: hidden':'Arabic text: shown')+'</button>';
+  if(q.answered)h+='<button onclick="nextQ()">'+(q.n>=10?'See score':'Next')+'</button>';
+  h+='</div>';
+  el.innerHTML=h;
+}
+if('speechSynthesis' in window){speechSynthesis.getVoices();}
+setMode('f');
+</script>
+</body>
+</html>
